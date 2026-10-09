@@ -1,0 +1,635 @@
+-- Äáº£m báº£o game Ä‘Ă£ load hoĂ n táº¥t
+if not game:IsLoaded() then game.Loaded:Wait() end
+
+local RunService = game:GetService("RunService")
+local CoreGui = game:GetService("CoreGui")
+local HttpService = game:GetService("HttpService")
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local CollectionService = game:GetService("CollectionService")
+local TweenService = game:GetService("TweenService")
+local TeleportService = game:GetService("TeleportService")
+
+local LocalPlayer = Players.LocalPlayer
+
+-- ==================== Cáº¤U HĂŒNH Há»† THá»NG LÆ¯U TRá»® 24H ====================
+local FILE_NAME = "MarisHub_KeyData.json"
+local EXPIRATION_TIME = 86400 -- 24 giá» tĂ­nh báº±ng giĂ¢y
+
+-- ==================== Cáº¤U HĂŒNH SERVER 1 (LINK4M) ====================
+local TOKEN_LINK4M = "660c15973c85e2004735b1f2"
+local TARGET_URL_1 = "https://keymarishub.netlify.app/"
+
+-- ==================== Cáº¤U HĂŒNH SERVER 2 (BBMKTS / VÆ¯á»¢T NHANH) ====================
+local TOKEN_BBMKTS = "664ca06fae50ed48496de861"
+local TARGET_URL_2 = "https://keymarishub.netlify.app/"
+
+-- Biáº¿n lÆ°u trá»¯ thĂ´ng tin Key vĂ  Thá»i gian
+local SavedData = {
+    Key = "",
+    ExpiryTime = 0,
+    IsAuthenticated = false 
+}
+
+-- HĂ m Ä‘á»c dá»¯ liá»‡u Ä‘Ă£ lÆ°u tá»« file (náº¿u cĂ³)
+local function loadKeyData()
+    if writefile and readfile and isfile and isfile(FILE_NAME) then
+        local success, decoded = pcall(function()
+            return HttpService:JSONDecode(readfile(FILE_NAME))
+        end)
+        if success and decoded then
+            SavedData = decoded
+        end
+    end
+end
+
+-- HĂ m lÆ°u dá»¯ liá»‡u vĂ o file
+local function saveKeyData()
+    if writefile then
+        pcall(function()
+            writefile(FILE_NAME, HttpService:JSONEncode(SavedData))
+        end)
+    end
+end
+
+-- Load dá»¯ liá»‡u cÅ© khi khá»Ÿi Ä‘á»™ng script
+loadKeyData()
+
+-- =========================================================================
+-- HĂ€M SCRIPT CHĂNH (KAITUN CYBORG A-Z)
+-- =========================================================================
+local function runMainScript()
+    print("SUCCESS! Running Main Script...")
+
+local Players = game:GetService("Players")
+local TeleportService = game:GetService("TeleportService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local HttpService = game:GetService("HttpService")
+local TweenService = game:GetService("TweenService")
+local RunService = game:GetService("RunService")
+
+local player = Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+
+local WEBHOOK_URL = getgenv().Settings.Webhook
+
+local function SendWebhook(NotificationName, FruitName)
+	if WEBHOOK_URL == "" or WEBHOOK_URL == " " then return end
+	
+	local Data = {
+		embeds = {
+			{
+				title = NotificationName,
+				color = math.random(0, 16777215),
+
+				fields = {
+					{
+						name = "Name Fruit",
+						value = FruitName,
+						inline = true
+					},
+					{
+						name = "Job ID",
+						value = game.JobId,
+						inline = false
+					},
+					{
+						name = "Time",
+						value = os.date("%d/%m/%Y %H:%M:%S"),
+						inline = true
+					}
+				},
+
+				footer = {
+					text = "Maris Hub"
+				}
+			}
+		}
+	}
+
+	pcall(function()
+		request({
+			Url = WEBHOOK_URL,
+			Method = "POST",
+			Headers = {
+				["Content-Type"] = "application/json"
+			},
+			Body = HttpService:JSONEncode(Data)
+		})
+	end)
+end
+
+-----------------------
+-- UI (NEW THEME)
+-----------------------
+local screenGui = Instance.new("ScreenGui", playerGui)
+screenGui.Name = "TrongNguyenHub_Premium"
+screenGui.ResetOnSpawn = false
+
+local mainFrame = Instance.new("Frame", screenGui)
+mainFrame.Size = UDim2.new(0, 360, 0, 180)
+mainFrame.Position = UDim2.new(0.5, -180, 0.5, -90)
+mainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+mainFrame.BackgroundTransparency = 0.2
+mainFrame.BorderSizePixel = 0
+mainFrame.Active = true
+mainFrame.Draggable = true
+Instance.new("UICorner", mainFrame).CornerRadius = UDim.new(0, 15)
+
+local uiStroke = Instance.new("UIStroke", mainFrame)
+uiStroke.Thickness = 4
+uiStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+
+local function createGlowingText(text, position, fontSize)
+    local label = Instance.new("TextLabel", mainFrame)
+    label.Size = UDim2.new(1, 0, 0, 40)
+    label.Position = position
+    label.BackgroundTransparency = 1
+    label.Text = text
+    label.Font = Enum.Font.GothamBold
+    label.TextSize = fontSize
+    label.TextColor3 = Color3.fromRGB(255, 255, 255)
+    
+    local textStroke = Instance.new("UIStroke", label)
+    textStroke.Color = Color3.fromRGB(0, 0, 0)
+    textStroke.Thickness = 2
+    
+    return label
+end
+
+local title = createGlowingText("MARIS HUB", UDim2.new(0, 0, 0, 20), 28)
+local status = createGlowingText("Kaitun Find Fruits", UDim2.new(0, 0, 0, 70), 28)
+local link = createGlowingText("https://discord.gg/vNWPpQUVuV", UDim2.new(0, 0, 0, 120), 16)
+
+RunService.RenderStepped:Connect(function()
+    local time = tick()
+
+    uiStroke.Color = Color3.fromHSV(time % 3 / 3, 1, 1)
+
+    title.TextColor3 = Color3.fromHSV((time * 0.5) % 1, 0.7, 1)
+
+    local pulse = (math.sin(time * 3) + 1) / 2
+    status.TextColor3 = Color3.new(pulse, 1, pulse)
+    
+    local glow = (math.sin(time * 1.5) + 1) / 2
+    link.TextColor3 = Color3.fromRGB(100 + (glow * 155), 200, 255)
+end)
+
+local function Status(text, color)
+	if color then
+		TweenService:Create(
+			status,
+			TweenInfo.new(0.5),
+			{TextColor3 = color}
+		):Play()
+	end
+	status.Text = text
+end
+
+-----------------------
+-- FIND FRUIT
+-----------------------
+local ReportedFruits = {}
+
+local function FindFruit()
+	for _, fruit in ipairs(workspace:GetChildren()) do
+		if (fruit:IsA("Tool") or fruit:IsA("Model"))
+			and fruit.Name:find("Fruit") then
+
+			local handle = fruit:FindFirstChild("Handle")
+
+			if handle and handle:IsA("BasePart") then
+
+				if not ReportedFruits[fruit] then
+					ReportedFruits[fruit] = true
+
+					SendWebhook("đŸ Fruit found", fruit.Name)
+
+					fruit.Destroying:Connect(function()
+						ReportedFruits[fruit] = nil
+					end)
+				end
+
+				return fruit
+			end
+		end
+	end
+end
+
+function Hop()
+    local success, data = pcall(function()
+        return HttpService:JSONDecode(
+            game:HttpGet(
+                "https://games.roblox.com/v1/games/"
+                .. game.PlaceId ..
+                "/servers/Public?sortOrder=Asc&limit=100"
+            )
+        )
+    end)
+
+    if not success or not data or not data.data then
+        warn("Failed to get servers")
+        return
+    end
+
+    local servers = {}
+
+    for _, s in ipairs(data.data) do
+        if s.id ~= game.JobId
+        and s.playing > 0
+        and s.playing < s.maxPlayers then
+            table.insert(servers, s)
+        end
+    end
+
+    if #servers == 0 then
+        warn("No servers found")
+        return
+    end
+
+    while #servers > 0 do
+        local index = math.random(1, #servers)
+        local server = servers[index]
+
+        local ok = pcall(function()
+            game:GetService("ReplicatedStorage").__ServerBrowser:InvokeServer("teleport", server.id)
+        end)
+
+        if ok then
+            return
+        end
+
+        table.remove(servers, index)
+        task.wait(0.2)
+    end
+
+    warn("All teleports failed")
+end
+
+-----------------------
+-- STORE FUNCTION
+-----------------------
+local Watching = {}
+local Notified = {}
+
+local function Store(tool)
+	local EatRemote = tool:FindFirstChild("EatRemote", true)
+	if not EatRemote then
+		return
+	end
+
+	ReplicatedStorage.Remotes.CommF_:InvokeServer(
+		"StoreFruit",
+		EatRemote.Parent:GetAttribute("OriginalName"),
+		tool
+	)
+
+	if not Watching[tool] then
+		Watching[tool] = true
+
+		task.spawn(function()
+			local fruitName = tool.Name
+
+			while tool.Parent do
+				task.wait(0.1)
+			end
+
+			if not Notified[tool] then
+				Notified[tool] = true
+				SendWebhook("âœ… Stored Successfully", fruitName)
+			end
+
+			Watching[tool] = nil
+		end)
+	end
+end
+
+-----------------------
+-- AUTO STORE
+-----------------------
+task.spawn(function()
+	while task.wait() do
+		for _, tool in ipairs(player.Backpack:GetChildren()) do
+			Store(tool)
+		end
+
+		if player.Character then
+			for _, tool in ipairs(player.Character:GetChildren()) do
+				Store(tool)
+			end
+		end
+	end
+end)
+
+local function AddLabel(part)
+	if part:FindFirstChild("BillboardGui") then
+		return
+	end
+
+	local billboard = Instance.new("BillboardGui")
+	billboard.Name = "BillboardGui"
+	billboard.Size = UDim2.new(0, 150, 0, 30)
+	billboard.AlwaysOnTop = true
+	billboard.StudsOffset = Vector3.new(0, 0, 0)
+
+	local label = Instance.new("TextLabel")
+	label.Size = UDim2.fromScale(1, 1)
+	label.BackgroundTransparency = 1
+	label.TextScaled = true
+	label.TextColor3 = Color3.fromRGB(255, 85, 0)
+	label.Parent = billboard
+
+	billboard.Parent = part
+
+	RunService.RenderStepped:Connect(function()
+		if not part.Parent then
+			return
+		end
+
+		local character = player.Character
+		local hrp = character and character:FindFirstChild("HumanoidRootPart")
+
+		if hrp then
+			local distance = math.floor((hrp.Position - part.Position).Magnitude)
+			label.Text = "Fruit [" .. distance .. "m]"
+		end
+	end)
+end
+
+-----------------------
+-- WAIT UNTIL FRUIT
+-----------------------
+local fruit = FindFruit()
+
+while not fruit do
+	for i = 4, 1, -1 do
+		Status("No Fruit -> Hop Server " .. i)
+		task.wait(1)
+	end
+	Hop()
+	task.wait(3)
+	fruit = FindFruit()
+end
+
+-----------------------
+-- JOIN TEAM
+-----------------------
+pcall(function()
+	local chosenTeam = getgenv().Settings.Team or "Pirates"
+	ReplicatedStorage.Remotes.CommF_:InvokeServer("SetTeam", chosenTeam)
+end)
+
+repeat task.wait()
+until player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+
+local hrp = player.Character.HumanoidRootPart
+
+function BodyVelocity(hrp)
+	if not hrp:FindFirstChild("BodyVelocity") then
+		local BodyVelocity = Instance.new("BodyVelocity")
+		BodyVelocity.Parent = hrp
+		BodyVelocity.Velocity = Vector3.new(0, 0, 0)
+		BodyVelocity.MaxForce = Vector3.new(1 / 0, 1 / 0, 1 / 0)
+
+		local e = Instance.new("BodyAngularVelocity")
+		e.AngularVelocity = Vector3.new()
+		e.MaxTorque = Vector3.new(1 / 0, 1 / 0, 1 / 0)
+		e.Name = "bAV"
+		e.Parent = hrp
+	end
+end
+
+function NoClip()
+	for a, b in pairs(workspace:GetChildren()) do
+		if b.Name == player.Name then
+			for i, v in pairs(workspace[player.Name]:GetChildren()) do
+				if v:IsA("BasePart") then	
+					v.CanCollide = false
+				end
+			end
+		end
+	end				
+end
+
+-----------------------
+-- TWEEN FUNCTION
+-----------------------
+local Speed = 300
+local function TweenTo(cf, pos)
+	local distance = (hrp.Position - pos).Magnitude
+	local timetw = math.max((distance - 150) / Speed, 0)
+
+	BodyVelocity(hrp)
+	NoClip()
+
+	local tween = TweenService:Create(
+		hrp,
+		TweenInfo.new(timetw, Enum.EasingStyle.Linear),
+		{
+			CFrame = cf
+		}
+	)
+
+	tween:Play()
+	return tween
+end
+
+-----------------------
+-- MAIN LOOP
+-----------------------
+while true do
+	local fruit = FindFruit()
+
+	if fruit and fruit:FindFirstChild("Handle") then
+		Status("Collect Fruits")
+		AddLabel(fruit.Handle)
+		TweenTo(fruit.Handle.CFrame, fruit.Handle.Position)
+		task.wait(0.5)
+	else
+		task.wait(2)
+		for i = 7, 1, -1 do
+			Status("Hop Server " .. i)
+			task.wait(1)
+		end
+		Hop()
+	end
+end
+
+end
+
+-- ==================== Tá»° Äá»˜NG Bá» QUA MENU Náº¾U CĂ’N Háº N 24H ====================
+if SavedData.Key ~= "" and os.time() < SavedData.ExpiryTime and SavedData.IsAuthenticated then
+    runMainScript()
+    return 
+end
+
+-- HĂ m táº¡o Key ngáº«u nhiĂªn má»›i vĂ  cáº­p nháº­t thá»i háº¡n 24h
+local function generateNewKey()
+    math.randomseed(os.time())
+    local randomNum = math.random(100000, 999999)
+    SavedData.Key = "MarisHub-" .. tostring(randomNum)
+    SavedData.ExpiryTime = os.time() + EXPIRATION_TIME
+    SavedData.IsAuthenticated = false 
+    saveKeyData()
+    return SavedData.Key
+end
+
+if CoreGui:FindFirstChild("NightHubRGB_Big") then
+    CoreGui.NightHubRGB_Big:Destroy()
+end
+
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "NightHubRGB_Big"
+ScreenGui.Parent = CoreGui
+ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+ScreenGui.ResetOnSpawn = false
+
+local MainFrame = Instance.new("Frame")
+MainFrame.Parent = ScreenGui
+MainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 20)
+MainFrame.BackgroundTransparency = 0.35
+MainFrame.BorderSizePixel = 0
+MainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+MainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
+MainFrame.Size = UDim2.new(0, 400, 0, 290)
+MainFrame.Active = true
+MainFrame.Draggable = true
+
+Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 14)
+local MainStroke = Instance.new("UIStroke", MainFrame)
+MainStroke.Thickness = 2
+
+local Title = Instance.new("TextLabel")
+Title.Parent = MainFrame
+Title.BackgroundTransparency = 1
+Title.Position = UDim2.new(0, 0, 0, 15)
+Title.Size = UDim2.new(1, 0, 0, 30)
+Title.Font = Enum.Font.SourceSansBold
+Title.Text = "Maris Hub - Key System"
+Title.TextColor3 = Color3.fromRGB(255, 220, 0)
+Title.TextSize = 22
+
+local function addBlackYellowStroke(parent)
+    local BlackStroke = Instance.new("UIStroke", parent)
+    BlackStroke.Color = Color3.fromRGB(0, 0, 0)
+    BlackStroke.Thickness = 3
+    local YellowStroke = Instance.new("UIStroke", parent)
+    YellowStroke.Color = Color3.fromRGB(255, 220, 0)
+    YellowStroke.Thickness = 1.2
+end
+
+local function createKeyInput(posY, widthScale, heightPixel)
+    local Element = Instance.new("TextBox")
+    Element.PlaceholderText = "Enter Key..."
+    Element.PlaceholderColor3 = Color3.fromRGB(200, 200, 200)
+    Element.Text = ""
+    Element.Parent = MainFrame
+    Element.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
+    Element.BackgroundTransparency = 0.4
+    Element.BorderSizePixel = 0
+    Element.Position = UDim2.new((1 - widthScale) / 2, 0, posY, 0)
+    Element.Size = UDim2.new(widthScale, 0, 0, heightPixel)
+    Instance.new("UICorner", Element).CornerRadius = UDim.new(0, 8)
+    addBlackYellowStroke(Element)
+    return Element
+end
+
+local function createButton(text, posY, widthScale, heightPixel)
+    local Element = Instance.new("TextButton")
+    Element.Text = text
+    Element.Font = Enum.Font.SourceSansBold
+    Element.TextSize = 15
+    Element.TextColor3 = Color3.fromRGB(255, 220, 0)
+    Element.Parent = MainFrame
+    Element.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
+    Element.BackgroundTransparency = 0.4
+    Element.BorderSizePixel = 0
+    Element.Position = UDim2.new((1 - widthScale) / 2, 0, posY, 0)
+    Element.Size = UDim2.new(widthScale, 0, 0, heightPixel)
+    Instance.new("UICorner", Element).CornerRadius = UDim.new(0, 8)
+    addBlackYellowStroke(Element)
+    return Element
+end
+
+local KeyInput  = createKeyInput(0.22, 0.90, 40)
+KeyInput.TextColor3 = Color3.fromRGB(230, 230, 230)
+KeyInput.Font = Enum.Font.SourceSansBold
+KeyInput.TextSize = 16
+KeyInput.TextXAlignment = Enum.TextXAlignment.Center
+
+local SubmitBtn  = createButton("đŸ”‘  SUBMIT KEY", 0.40, 0.50, 40)
+local Server1Btn = createButton("  GET KEY 1", 0.58, 0.50, 45)
+local Server2Btn = createButton("  GET KEY 2", 0.76, 0.50, 45)
+
+local function getLink4mUrl()
+    local currentKey = generateNewKey()
+    local fullTargetUrl = TARGET_URL_1 .. "?ma=" .. currentKey
+    local api_url = "https://link4m.co/api-shorten/v2?api=" .. TOKEN_LINK4M .. "&url=" .. HttpService:UrlEncode(fullTargetUrl)
+    local success, result = pcall(function()
+        return HttpService:JSONDecode(game:HttpGet(api_url))
+    end)
+    if success and result and result.status ~= "error" then
+        return result.shortenedUrl
+    else
+        return fullTargetUrl
+    end
+end
+
+local function getBbmktsUrl()
+    local currentKey = generateNewKey()
+    local fullTargetUrl = TARGET_URL_2 .. "?ma=" .. currentKey
+    local api_url = "https://bbmkts.com/dapi?token=" .. TOKEN_BBMKTS .. "&longurl=" .. HttpService:UrlEncode(fullTargetUrl) .. "&format=text"
+    local success, result = pcall(function() return game:HttpGet(api_url) end)
+    if success and result and result ~= "" then
+        return string.gsub(result, "^%s*(.-)%s*$", "%1")
+    else
+        return fullTargetUrl
+    end
+end
+
+RunService.RenderStepped:Connect(function()
+    MainStroke.Color = Color3.fromHSV(tick() % 5 / 5, 1, 1)
+end)
+
+Server1Btn.MouseButton1Click:Connect(function()
+    if setclipboard then
+        Server1Btn.Text = "â³ Loading..."
+        setclipboard(getLink4mUrl())
+        Server1Btn.Text = "âœ“  COPIED LINK 1!"
+        task.wait(2)
+        Server1Btn.Text = "  GET KEY 1"
+    end
+end)
+
+Server2Btn.MouseButton1Click:Connect(function()
+    if setclipboard then
+        Server2Btn.Text = "â³ Loading..."
+        setclipboard(getBbmktsUrl())
+        Server2Btn.Text = "âœ“  COPIED LINK 2!"
+        task.wait(2)
+        Server2Btn.Text = "  GET KEY 2"
+    end
+end)
+
+SubmitBtn.MouseButton1Click:Connect(function()
+    local enteredText = string.gsub(KeyInput.Text, "^%s*(.-)%s*$", "%1")
+    
+    if SavedData.Key ~= "" and os.time() < SavedData.ExpiryTime then
+        if enteredText == SavedData.Key then
+            SavedData.IsAuthenticated = true 
+            saveKeyData() 
+            SubmitBtn.Text = "âœ“  SUCCESS!"
+            task.wait(1)
+            ScreenGui:Destroy()
+            runMainScript()
+        else
+            SubmitBtn.Text = "âŒ  WRONG KEY!"
+            task.wait(1.5)
+            SubmitBtn.Text = "đŸ”‘  SUBMIT KEY"
+        end
+    else
+        SubmitBtn.Text = "âŒ›  KEY EXPIRED! GET NEW KEY"
+        task.wait(1.5)
+        SubmitBtn.Text = "đŸ”‘  SUBMIT KEY"
+    end
+end)
